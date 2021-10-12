@@ -60,7 +60,7 @@ export const getAssociatedTokenAddress = async (
   return Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, mint, user)
 }
 
-export const existsAssociatedTokenAddress = async(
+export const exists = async(
   conn: web3.Connection,
   mint: web3.PublicKey,
   user: web3.PublicKey
@@ -71,7 +71,6 @@ export const existsAssociatedTokenAddress = async(
 
 export const get = {
   address: getAssociatedTokenAddress,
-  exists: existsAssociatedTokenAddress
 }
 
 export const create = {

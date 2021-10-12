@@ -1,58 +1,91 @@
+import BN from 'bn.js'
 import * as web3 from '@solana/web3.js'
-import * as TokenInstructions from './token-instructions'
 import { TOKEN_PROGRAM_ID, Token } from '@solana/spl-token'
 import * as util from './util'
+import * as associatedTokenAccount from './associated-token-account'
+import * as account from './account'
+import * as mintTx from './mint'
 import { WalletI } from './types'
 
-export const createTokenAccountInstructions = async (
+export const transferTokenRawInstructions = async (
+  mint: web3.PublicKey,
+  from: web3.PublicKey,
+  to: web3.PublicKey,
+  amount: number,
+  decimals: number,
+): Promise<web3.TransactionInstruction[]> => {
+  return [
+    Token.createTransferCheckedInstruction(TOKEN_PROGRAM_ID, from, mint, to, from, [], amount, decimals)
+  ]
+}
+
+export const transferTokenInstructions = async (
   conn: web3.Connection,
   mint: web3.PublicKey,
   from: web3.PublicKey,
   to: web3.PublicKey,
   amount: number,
 ): Promise<web3.TransactionInstruction[]> => {
-  const instructions = Token.createTransferInstruction(TOKEN_PROGRAM_ID, )
-  Token.createTransferCheckedInstruction(TOKEN_PROGRAM_ID, from, mint, to, from, [], amount, decimals)
-  return {} as any
+  const [fromAssociated, toAssociated] = await Promise.all([
+    associatedTokenAccount.get.address(mint, from),
+    associatedTokenAccount.get.address(mint, to)
+  ])
+  const exists = await account.exists(conn, toAssociated)
+
+  const instructions = []
+  if (!exists) {
+    instructions.push(
+      associatedTokenAccount.create.instructions(mint, toAssociated, to, from)
+    )
+  }
+
+  const mintDecimals = await mintTx.get.decimals(conn, mint)
+  const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
+  instructions.push(
+    transferTokenRawInstructions(mint, fromAssociated, toAssociated, amountRaw, mintDecimals)
+  )
+
+  return instructions
 }
 
-export const createTokenAccountTx = async (
+export const transferTokenTx = async (
   conn: web3.Connection,
   mint: web3.PublicKey,
-  address: web3.PublicKey,
-  owner: web3.PublicKey,
-  sender: web3.PublicKey
+  from: web3.PublicKey,
+  to: web3.PublicKey,
+  amount: number
 ): Promise<web3.Transaction> => {
-  const instructions = await createTokenAccountInstructions(conn, mint, address, owner, sender)
-  return util.wrapInstructions(conn, instructions, sender)
+  const instructions = await transferTokenInstructions(conn, mint, from, to, amount)
+  return util.wrapInstructions(conn, instructions, from)
 }
 
-export const createTokenAccountSigned = async (
+export const transferTokenSigned = async (
   conn: web3.Connection,
   mint: web3.PublicKey,
-  address: web3.PublicKey,
-  owner: web3.PublicKey,
+  to: web3.PublicKey,
+  amount: number,
   wallet: WalletI
 ): Promise<web3.Transaction> => {
-  const tx = await createTokenAccountTx(conn, mint, address, owner, wallet.publicKey)
+  const tx = await transferTokenTx(conn, mint, wallet.publicKey, to, amount)
   return await wallet.signTransaction(tx)
 }
 
-export const createTokenAccountSend = async (
+export const transferTokenSend = async (
   conn: web3.Connection,
   mint: web3.PublicKey,
-  owner: web3.PublicKey,
+  to: web3.PublicKey,
+  amount: number,
   wallet: WalletI
-): Promise<web3.PublicKey> => {
-  const vault = web3.Keypair.generate();
-  const tx = await createTokenAccountSigned(conn, mint, vault.publicKey, owner, wallet)
-  await util.partialSignAndSend(conn, tx, [vault])
-  return vault.publicKey
+): Promise<string> => {
+  const tx = await transferTokenSigned(conn, mint, to, amount, wallet)
+  return await util.sendAndConfirm(conn, tx)
 }
 
-export const create = {
-  instructions: createTokenAccountInstructions,
-  tx: createTokenAccountTx,
-  signed: createTokenAccountSigned,
-  send: createTokenAccountSend
+
+export const transfer = {
+  rawInstructions: transferTokenRawInstructions,
+  instructions: transferTokenInstructions,
+  tx: transferTokenTx,
+  signed: transferTokenSigned,
+  send: transferTokenSend
 }

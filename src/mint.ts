@@ -4,6 +4,8 @@ import * as TokenInstructions from './token-instructions'
 import { TOKEN_PROGRAM_ID, Token, MintInfo } from '@solana/spl-token'
 import * as util from './util'
 import { WalletI } from './types'
+import * as account from './account'
+import * as associatedTokenAccount from './associated-token-account'
 
 export const createMintInstructions = async (
   conn: web3.Connection,
@@ -53,23 +55,16 @@ export const createMintSigned = async (
 export const createMintSend = async (
   conn: web3.Connection,
   decimals: number,
-  mint: web3.PublicKey,
   authority: web3.PublicKey,
   wallet: WalletI
 ): Promise<string> => {
-  const tx = await createMintSigned(conn, decimals, mint, authority, wallet)
+  const mint = web3.Keypair.generate()
+  const tx = await createMintSigned(conn, decimals, mint.publicKey, authority, wallet)
   return util.sendAndConfirm(conn, tx)
 }
 
-export const create = {
-  instructions: createMintInstructions,
-  tx: createMintTx,
-  signed: createMintSigned,
-  send: createMintSend
-}
 
-
-export const mintToInstructions = (
+export const mintToRawInstructions = (
   mint: web3.PublicKey,
   dest: web3.PublicKey,
   authority: web3.PublicKey,
@@ -92,8 +87,20 @@ export const mintToTx = async (
   authority: web3.PublicKey,
   amount: number
 ): Promise<web3.Transaction> => {
-  const instruction = mintToInstructions(mint, dest, authority, amount)
-  return util.wrapInstructions(conn, instruction, authority)
+  const associated = await associatedTokenAccount.get.address(mint, dest)
+  const exists = await account.exists(conn, associated)
+  const instructions = []
+  if (!exists) {
+    instructions.push(
+      associatedTokenAccount.create.instructions(mint, associated, dest, authority)
+    )
+  }
+  const mintDecimals = await getMintDecimals(conn, mint)
+  const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
+  instructions.push(
+    mintToRawInstructions(mint, associated, authority, amountRaw)
+  )
+  return util.wrapInstructions(conn, instructions, authority)
 }
 
 export const mintToSigned = async (
@@ -116,13 +123,6 @@ export const mintToSend = async (
 ): Promise<string> => {
   const tx = await mintToSigned(conn, mint, dest, authority, amount)
   return util.sendAndConfirm(conn, tx)
-}
-
-export const mintTo = {
-  instructions: mintToInstructions,
-  tx: mintToTx,
-  signed: mintToSigned,
-  send: mintToSend
 }
 
 export const getMintInfo = async (
@@ -157,8 +157,22 @@ export const getMintSupply = async (
   return util.makeDecimal(info.supply, info.decimals)
 }
 
+export const create = {
+  instructions: createMintInstructions,
+  tx: createMintTx,
+  signed: createMintSigned,
+  send: createMintSend
+}
+
 export const get = {
   decimals: getMintDecimals,
   supply: getMintSupply,
   supplyRaw: getMintSupplyRaw
+}
+
+export const mintTo = {
+  rawInstructions: mintToRawInstructions,
+  tx: mintToTx,
+  signed: mintToSigned,
+  send: mintToSend
 }
