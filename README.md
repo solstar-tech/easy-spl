@@ -1,5 +1,5 @@
 # Easy SPL
-[![NPM](https://img.shields.io/npm/v/easy-spl)](https://www.npmjs.com/package/easy-aspl)
+[![NPM](https://img.shields.io/npm/v/easy-spl)](https://www.npmjs.com/package/easy-spl)
 
 _Making tokens on Solana easy!_
 
