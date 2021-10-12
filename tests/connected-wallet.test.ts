@@ -3,7 +3,7 @@ import * as spl from '../src'
 
 jest.setTimeout(100000)
 
-describe('tokens', () => {
+describe('connected wallet', () => {
 
   const connection = new web3.Connection('http://localhost:8899', 'confirmed')
 

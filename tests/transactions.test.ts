@@ -3,7 +3,7 @@ import * as spl from '../src'
 
 jest.setTimeout(100000)
 
-describe('tokens', () => {
+describe('transactions', () => {
 
   const keypairA = web3.Keypair.generate()
   const walletA = spl.Wallet.fromKeypair(keypairA)
