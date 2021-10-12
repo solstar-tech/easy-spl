@@ -1,11 +1,11 @@
 import BN from 'bn.js'
 import * as web3 from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID, Token } from '@solana/spl-token'
-import * as util from './util'
+import * as util from '../util'
 import * as associatedTokenAccount from './associated-token-account'
 import * as account from './account'
 import * as mintTx from './mint'
-import { WalletI } from './types'
+import { WalletI } from '../types'
 
 export const transferTokenRawInstructions = (
   mint: web3.PublicKey,

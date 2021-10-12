@@ -1,8 +1,8 @@
 import * as web3 from '@solana/web3.js'
 import * as TokenInstructions from './token-instructions'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
-import * as util from './util'
-import { WalletI } from './types'
+import * as util from '../util'
+import { WalletI } from '../types'
 
 export const createTokenAccountInstructions = async (
   conn: web3.Connection,

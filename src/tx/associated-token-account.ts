@@ -1,8 +1,8 @@
 import * as web3 from '@solana/web3.js'
 import { ASSOCIATED_TOKEN_PROGRAM_ID, Token, TOKEN_PROGRAM_ID } from '@solana/spl-token'
-import * as util from './util'
+import * as util from '../util'
 import * as account from './account'
-import { WalletI } from './types'
+import { WalletI } from '../types'
 
 export const createAssociatedTokenAccountRawInstructions = (
   mint: web3.PublicKey,
