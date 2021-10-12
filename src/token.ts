@@ -7,15 +7,16 @@ import * as account from './account'
 import * as mintTx from './mint'
 import { WalletI } from './types'
 
-export const transferTokenRawInstructions = async (
+export const transferTokenRawInstructions = (
   mint: web3.PublicKey,
   from: web3.PublicKey,
   to: web3.PublicKey,
+  owner: web3.PublicKey,
   amount: number,
   decimals: number,
-): Promise<web3.TransactionInstruction[]> => {
+): web3.TransactionInstruction[] => {
   return [
-    Token.createTransferCheckedInstruction(TOKEN_PROGRAM_ID, from, mint, to, from, [], amount, decimals)
+    Token.createTransferCheckedInstruction(TOKEN_PROGRAM_ID, from, mint, to, owner, [], amount, decimals)
   ]
 }
 
@@ -30,20 +31,18 @@ export const transferTokenInstructions = async (
     associatedTokenAccount.get.address(mint, from),
     associatedTokenAccount.get.address(mint, to)
   ])
-  const exists = await account.exists(conn, toAssociated)
 
-  const instructions = []
-  if (!exists) {
-    instructions.push(
-      associatedTokenAccount.create.instructions(mint, toAssociated, to, from)
-    )
-  }
+  const exists = await account.exists(conn, toAssociated)
+  let instructions = exists 
+    ? [] 
+    : associatedTokenAccount.create.rawInstructions(mint, toAssociated, to, from)
 
   const mintDecimals = await mintTx.get.decimals(conn, mint)
   const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
-  instructions.push(
-    transferTokenRawInstructions(mint, fromAssociated, toAssociated, amountRaw, mintDecimals)
-  )
+  instructions = [
+    ...instructions,
+    ...transferTokenRawInstructions(mint, fromAssociated, toAssociated, from, amountRaw, mintDecimals)
+  ]
 
   return instructions
 }

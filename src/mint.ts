@@ -57,10 +57,11 @@ export const createMintSend = async (
   decimals: number,
   authority: web3.PublicKey,
   wallet: WalletI
-): Promise<string> => {
+): Promise<web3.PublicKey> => {
   const mint = web3.Keypair.generate()
   const tx = await createMintSigned(conn, decimals, mint.publicKey, authority, wallet)
-  return util.sendAndConfirm(conn, tx)
+  await util.partialSignAndSend(conn, tx, [mint])
+  return mint.publicKey
 }
 
 
@@ -88,18 +89,19 @@ export const mintToTx = async (
   amount: number
 ): Promise<web3.Transaction> => {
   const associated = await associatedTokenAccount.get.address(mint, dest)
+
   const exists = await account.exists(conn, associated)
-  const instructions = []
-  if (!exists) {
-    instructions.push(
-      associatedTokenAccount.create.instructions(mint, associated, dest, authority)
-    )
-  }
+  let instructions = exists 
+    ? []
+    : associatedTokenAccount.create.rawInstructions(mint, associated, dest, authority)
+
   const mintDecimals = await getMintDecimals(conn, mint)
   const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
-  instructions.push(
-    mintToRawInstructions(mint, associated, authority, amountRaw)
-  )
+  instructions = [
+    ...instructions,
+    ...mintToRawInstructions(mint, associated, authority, amountRaw)
+  ]
+
   return util.wrapInstructions(conn, instructions, authority)
 }
 
@@ -157,6 +159,28 @@ export const getMintSupply = async (
   return util.makeDecimal(info.supply, info.decimals)
 }
 
+export const getBalanceRaw = async (
+  conn: web3.Connection,
+  mint: web3.PublicKey,
+  tokenAccnt: web3.PublicKey
+): Promise<BN> => {
+  const token = new Token(conn, mint, TOKEN_PROGRAM_ID, {} as any)
+  const info = await token.getAccountInfo(tokenAccnt)
+  return info.amount
+}
+
+export const getBalance = async (
+  conn: web3.Connection,
+  mint: web3.PublicKey,
+  user: web3.PublicKey
+): Promise<number> => {
+  const tokenAccnt = await associatedTokenAccount.get.address(mint, user) 
+  const rawBalance = await getBalanceRaw(conn, mint, tokenAccnt)
+  const decimals = await getMintDecimals(conn, mint)
+  return util.makeDecimal(rawBalance, decimals)
+}
+
+
 export const create = {
   instructions: createMintInstructions,
   tx: createMintTx,
@@ -167,7 +191,9 @@ export const create = {
 export const get = {
   decimals: getMintDecimals,
   supply: getMintSupply,
-  supplyRaw: getMintSupplyRaw
+  supplyRaw: getMintSupplyRaw,
+  balanceRaw: getBalanceRaw,
+  balance: getBalance,
 }
 
 export const mintTo = {
