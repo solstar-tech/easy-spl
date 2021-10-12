@@ -11,6 +11,7 @@ All of this is prone to developer error and diffiult to keep straight when getti
 We wanted to develop a library that papers over all of these difficulties. Using Easy SPL, you don't have to think about associated token accounts or decimals! We also include some stateful classes for repeated interactions with a mint or given user wallet.
 
 ## Use
+See the [Documentation](https://solstar-tech.github.io/easy-spl/) for full details
 ```ts
 import * as spl from 'easy-spl'
 const connection = new web3.Connection('https://api.devnet.solana.com', 'confirmed')
@@ -70,6 +71,8 @@ Each method includes 4-5 variations:
 `tx`: get the tx for the operation, with `recentBlockhash` & `feePayer` filled out
 `signed`: get the formatted tx for the operation & sign with the given wallet
 `send`: get the signed tx for the operation, send to the network, and wait for confirmation
+
+See the [Documentation](https://solstar-tech.github.io/easy-spl/) for more details.
 
 
 ## Development
