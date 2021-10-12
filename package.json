@@ -1,16 +1,17 @@
 {
   "name": "easy-spl",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "browser": "dist/index.js",
   "typings": "dist/index.d.ts",
   "license": "Apache-2.0",
   "scripts": {
+    "docs": "typedoc",
     "build": "tsc",
+    "prepare": "yarn build && yarn docs",
     "dev": "tsc -w",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "doc": "typedoc"
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@solana/spl-token": "^0.1.8",

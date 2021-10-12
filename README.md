@@ -91,6 +91,12 @@ yarn test
 
 # test with reloading
 yarn test:watch
+
+# docs
+yarn dcos
+
+# before publishing
+yarn prepare
 ```
 
 
