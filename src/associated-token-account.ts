@@ -59,6 +59,9 @@ export const createAssociatedTokenAccountSend = async (
   wallet: WalletI,
 ): Promise<web3.PublicKey> => {
   const address = await getAssociatedTokenAddress(mint, owner)
+  if (await account.exists(conn, address)) {
+    return address
+  }
   const tx = await createAssociatedTokenAccountSigned(conn, mint, address, owner, wallet)
   await util.sendAndConfirm(conn, tx)
   return address

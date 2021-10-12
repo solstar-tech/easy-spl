@@ -1,5 +1,8 @@
 import * as web3 from '@solana/web3.js'
-import Wallet from "./wallet";
+import * as mint from './mint'
+import * as token from './token'
+import * as associatedTokenAccount from './associated-token-account'
+import Wallet from "./wallet"
 
 export class ConnectedWallet extends Wallet {
 
@@ -19,6 +22,27 @@ export class ConnectedWallet extends Wallet {
   static fromSecretKeyConn(conn: web3.Connection, key: Uint8Array): ConnectedWallet {
     const keypair = web3.Keypair.fromSecretKey(key)
     return new ConnectedWallet(conn, keypair)
+  }
+
+  async getBalance(mintKey: web3.PublicKey): Promise<number> {
+    return mint.getBalance(this.conn, mintKey, this.publicKey)
+  }
+
+  async transferToken(mintKey: web3.PublicKey, to: web3.PublicKey, amount: number): Promise<string> {
+    return token.transfer.send(this.conn, mintKey, to, amount, this)
+  }
+
+  async getAssociatedTokenAccount(mintKey: web3.PublicKey): Promise<web3.PublicKey> {
+    return associatedTokenAccount.get.address(mintKey, this.publicKey)
+  }
+
+  async existsAssociatedTokenAccount(mintKey: web3.PublicKey): Promise<boolean> {
+    return associatedTokenAccount.exists(this.conn, mintKey, this.publicKey)
+  }
+
+  // idempotent, can call as many times as you like
+  async createAssociatedTokenAccount(mintKey: web3.PublicKey): Promise<web3.PublicKey> {
+    return associatedTokenAccount.create.send(this.conn, mintKey, this.publicKey, this)
   }
 
 }

@@ -5,12 +5,12 @@ jest.setTimeout(100000)
 
 describe('tokens', () => {
 
-  const keypairA = web3.Keypair.generate()
-  const walletA = spl.Wallet.fromKeypair(keypairA)
-  const keypairB = web3.Keypair.generate()
-  const walletB = spl.Wallet.fromKeypair(keypairB)
-
   const connection = new web3.Connection('http://localhost:8899', 'confirmed')
+
+  const keypairA = web3.Keypair.generate()
+  const walletA = spl.ConnectedWallet.fromKeypairConn(connection, keypairA)
+  const keypairB = web3.Keypair.generate()
+  const walletB = spl.ConnectedWallet.fromKeypairConn(connection, keypairB)
 
   const ONE_SOL = web3.LAMPORTS_PER_SOL
   const MINT_AMOUNT = 15
@@ -38,18 +38,18 @@ describe('tokens', () => {
   })
 
   it('accurately retrieves their balance', async () => {
-    const balance = await spl.mint.getBalance(connection, mint, walletB.publicKey)
+    const balance = await walletB.getBalance(mint)
     expect(balance).toEqual(MINT_AMOUNT)
   })
 
   it('transfers to user with no account', async () => {
-    await spl.token.transfer.send(connection, mint, walletA.publicKey, TRANSFER_AMOUNT, walletB)
+    await walletB.transferToken(mint, walletA.publicKey, TRANSFER_AMOUNT)
   })
 
   it('accurately retrieves both balances', async () => {
     const [balanceA, balanceB] = await Promise.all([
-      spl.mint.getBalance(connection, mint, walletA.publicKey),
-      spl.mint.getBalance(connection, mint, walletB.publicKey)
+      walletA.getBalance(mint),
+      walletB.getBalance(mint)
     ])
     expect(balanceA).toEqual(TRANSFER_AMOUNT)
     expect(balanceB).toEqual(MINT_AMOUNT - TRANSFER_AMOUNT)
