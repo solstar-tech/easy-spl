@@ -24,7 +24,7 @@ export const createTokenAccountInstructions = async (
       mint,
       owner,
     }),
-  ];
+  ]
 }
 
 export const createTokenAccountTx = async (
@@ -55,7 +55,7 @@ export const createTokenAccountSend = async (
   owner: web3.PublicKey,
   wallet: WalletI
 ): Promise<web3.PublicKey> => {
-  const vault = web3.Keypair.generate();
+  const vault = web3.Keypair.generate()
   const tx = await createTokenAccountSigned(conn, mint, vault.publicKey, owner, wallet)
   await util.partialSignAndSend(conn, tx, [vault])
   return vault.publicKey

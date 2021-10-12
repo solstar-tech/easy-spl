@@ -93,10 +93,10 @@ yarn test
 yarn test:watch
 
 # docs
-yarn dcos
+yarn docs
 
-# before publishing
-yarn prepare
+# lint
+yarn lint
 ```
 
 

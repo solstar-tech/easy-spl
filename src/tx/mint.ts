@@ -27,7 +27,7 @@ export const createMintInstructions = async (
       decimals: decimals,
       mintAuthority: authority,
     }),
-  ];
+  ]
 }
 
 export const createMintTx = async (

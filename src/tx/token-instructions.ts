@@ -1,3 +1,4 @@
+ /* eslint-disable */
 // @ts-nocheck
 // shamelessly ripped from @project-serum/serum to avoid dependency
 // https://github.com/project-serum/serum-ts/blob/master/packages/serum/src/token-instructions.js

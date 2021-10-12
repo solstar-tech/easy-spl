@@ -1,6 +1,6 @@
 {
   "name": "easy-spl",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/index.js",
   "browser": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -8,10 +8,10 @@
   "scripts": {
     "docs": "typedoc",
     "build": "tsc",
-    "prepare": "yarn build && yarn docs",
     "dev": "tsc -w",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*"
   },
   "dependencies": {
     "@solana/spl-token": "^0.1.8",
@@ -21,6 +21,9 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.0",
     "jest": "^27.2.5",
     "ts-jest": "^27.0.5",
     "typedoc": "^0.22.5",

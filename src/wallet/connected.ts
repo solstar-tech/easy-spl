@@ -2,7 +2,7 @@ import * as web3 from '@solana/web3.js'
 import * as mint from '../tx/mint'
 import * as token from '../tx/token'
 import * as associatedTokenAccount from '../tx/associated-token-account'
-import InternalWallet from "./simple"
+import InternalWallet from './simple'
 import { WalletI } from '../types'
 
 export class Wallet implements WalletI {

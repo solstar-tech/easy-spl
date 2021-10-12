@@ -1,4 +1,3 @@
-import BN from 'bn.js'
 import * as web3 from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID, Token } from '@solana/spl-token'
 import * as util from '../util'
