@@ -1,8 +1,8 @@
 import * as web3 from '@solana/web3.js'
-import { WalletI } from './types'
+import { WalletI } from '../types'
 
-// simple wrapper around keypairs so interfaces line up
-export class Wallet implements WalletI {
+// internal wallet to prevent circular dependencies
+export class InternalWallet implements WalletI {
 
   private keypair: web3.Keypair
   publicKey: web3.PublicKey
@@ -10,17 +10,6 @@ export class Wallet implements WalletI {
   constructor(keypair: web3.Keypair) {
     this.keypair = keypair
     this.publicKey = keypair.publicKey
-  }
-
-  // from web3 keypair
-  static fromKeypair(keypair: web3.Keypair): Wallet {
-    return new Wallet(keypair)
-  }
-
-  // from base58 secretKey
-  static fromSecretKey(key: Uint8Array): Wallet {
-    const keypair = web3.Keypair.fromSecretKey(key)
-    return new Wallet(keypair)
   }
 
   async signTransaction(tx: web3.Transaction): Promise<web3.Transaction> {
@@ -36,4 +25,4 @@ export class Wallet implements WalletI {
 
 }
 
-export default Wallet
+export default InternalWallet

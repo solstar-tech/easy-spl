@@ -1,4 +1,5 @@
 import { MintInfo } from '@solana/spl-token'
+
 import * as web3 from '@solana/web3.js'
 import * as mint from './tx/mint'
 import { WalletI } from './types'

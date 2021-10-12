@@ -1,0 +1,11 @@
+{
+  "entryPoints": [ "./src/" ],
+  "exclude": "**/*.test.ts",
+  "excludeExternals": true,
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "name": "Easy SPL",
+  "out": "docs",
+  "readme": "./README.md"
+}

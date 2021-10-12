@@ -6,9 +6,9 @@ jest.setTimeout(100000)
 describe('transactions', () => {
 
   const keypairA = web3.Keypair.generate()
-  const walletA = spl.Wallet.fromKeypair(keypairA)
+  const walletA = spl.SimpleWallet.fromKeypair(keypairA)
   const keypairB = web3.Keypair.generate()
-  const walletB = spl.Wallet.fromKeypair(keypairB)
+  const walletB = spl.SimpleWallet.fromKeypair(keypairB)
 
   const connection = new web3.Connection('http://localhost:8899', 'confirmed')
 

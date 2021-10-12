@@ -8,9 +8,9 @@ describe('connected wallet', () => {
   const connection = new web3.Connection('http://localhost:8899', 'confirmed')
 
   const keypairA = web3.Keypair.generate()
-  const walletA = spl.ConnectedWallet.fromKeypairConn(connection, keypairA)
+  const walletA = spl.Wallet.fromKeypair(connection, keypairA)
   const keypairB = web3.Keypair.generate()
-  const walletB = spl.ConnectedWallet.fromKeypairConn(connection, keypairB)
+  const walletB = spl.Wallet.fromKeypair(connection, keypairB)
 
   const ONE_SOL = web3.LAMPORTS_PER_SOL
   const MINT_AMOUNT = 15
