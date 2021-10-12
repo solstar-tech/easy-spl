@@ -1,0 +1,19 @@
+{
+  "name": "easy-spl",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
+  "dependencies": {
+    "@solana/spl-token": "^0.1.8",
+    "@solana/web3.js": "^1.29.2",
+    "bn.js": "^5.2.0",
+    "buffer-layout": "^1.2.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.3"
+  }
+}
