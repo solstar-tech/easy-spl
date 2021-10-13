@@ -7,6 +7,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "docs": "typedoc",
+    "prebuild": "rimraf dist",
     "build": "tsc",
     "dev": "tsc -w",
     "test": "jest",
@@ -25,6 +26,7 @@
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.0",
     "jest": "^27.2.5",
+    "rimraf": "^3.0.2",
     "ts-jest": "^27.0.5",
     "typedoc": "^0.22.5",
     "typescript": "^4.4.3"
