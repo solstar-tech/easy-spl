@@ -4,7 +4,7 @@
 _Making tokens on Solana easy!_
 
 ## Motivation
-SPL tokens are difficult to get started with. They function differently from other common blockchain-based tokens. There is no single stateful contract (as in ERC-20 tokens). Tokens aren't even held in a user's root account! Instead a user creates a new account (that their root account has control over) for each token they want to interact with. Each token contract stores the number of decimals for a mint, but tokens are sent around without reference to the number of tokens. So to send 1 token of a mint with 4 decimals, you need to send 1000 tokens.
+SPL tokens are difficult to get started with. They function differently from other common blockchain-based tokens. There is no single stateful contract (as in ERC-20 tokens). Tokens aren't even held in a user's root account! Instead a user creates a new account (that their root account has authority over) for each token they want to interact with. Each token contract stores the number of decimals for a mint, but tokens are sent around without reference to the number of decimals. So to send 1 token of a mint with 4 decimals, you need to send 1000 tokens.
 
 All of this is prone to developer error and diffiult to keep straight when getting started!
 
@@ -23,7 +23,7 @@ const keypairBob = web3.Keypair.generate()
 const bob = spl.Wallet.fromKeypair(connection, keypairBob)
 
 // create a new mint controlled by alice with 6 decimals
-const mint = await spl.Mint(connection, 6, alice.publicKey, alice)
+const mint = await spl.Mint.create(connection, 6, alice.publicKey, alice)
 
 // mint 10 tokens to bob
 await mint.mintTo(bob.publicKey, alice, 10)
@@ -61,16 +61,16 @@ export default function OurComponent () {
 ```
 
 ## Txs & Instructions
-Sometimes you need to just format the instructions for something, with out sending. In that case you can use the txs & instructions api.
+Sometimes you need to just format the instructions for something, without sending. In that case you can use the txs & instructions api.
 
 _Note: any function that has the word "raw" in it, refers to addresses in terms of **associated token accounts** and amounts in terms of **integer amounts** (multiplied out by the token decimals)._
 
 Each method includes 4-5 variations:
-`instructions`: get just the instruction for the operation
-`rawInstructions`: get just the instruction, but parameters are given as **associated token accounts** and **integer amounts**
-`tx`: get the tx for the operation, with `recentBlockhash` & `feePayer` filled out
-`signed`: get the formatted tx for the operation & sign with the given wallet
-`send`: get the signed tx for the operation, send to the network, and wait for confirmation
+- `instructions`: get just the instruction for the operation
+- `rawInstructions`: get just the instruction, but parameters are given as **associated token accounts** and **integer amounts**
+- `tx`: get the tx for the operation, with `recentBlockhash` & `feePayer` filled out
+- `signed`: get the formatted tx for the operation & sign with the given wallet
+- `send`: get the signed tx for the operation, send to the network, and wait for confirmation
 
 See the [Documentation](https://solstar-tech.github.io/easy-spl/) for more details.
 
