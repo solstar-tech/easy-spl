@@ -1,6 +1,7 @@
 import * as web3 from '@solana/web3.js'
 import * as mint from '../tx/mint'
 import * as token from '../tx/token'
+import * as sol from '../tx/sol'
 import * as associatedTokenAccount from '../tx/associated-token-account'
 import InternalWallet from './simple'
 import { WalletI } from '../types'
@@ -39,6 +40,14 @@ export class Wallet implements WalletI {
 
   async transferToken(mintKey: web3.PublicKey, to: web3.PublicKey, amount: number): Promise<string> {
     return token.transfer.send(this.conn, mintKey, to, amount, this)
+  }
+
+  async getSolBalance(): Promise<number> {
+    return sol.get.balance(this.conn, this.publicKey)
+  }
+
+  async transferSol(to: web3.PublicKey, amount: number): Promise<string> {
+    return sol.transfer.send(this.conn, to, amount, this)
   }
 
   async getAssociatedTokenAccount(mintKey: web3.PublicKey): Promise<web3.PublicKey> {

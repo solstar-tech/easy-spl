@@ -1,4 +1,5 @@
 export * as mint from './tx/mint'
+export * as sol from './tx/sol'
 export * as token from './tx/token'
 export * as account from './tx/account'
 export * as tokenAccount from './tx/token-account'
