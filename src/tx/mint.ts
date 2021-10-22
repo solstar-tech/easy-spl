@@ -165,8 +165,13 @@ export const getBalanceRaw = async (
   tokenAccnt: web3.PublicKey
 ): Promise<BN> => {
   const token = new Token(conn, mint, TOKEN_PROGRAM_ID, {} as any)
-  const info = await token.getAccountInfo(tokenAccnt)
-  return info.amount
+  try {
+    const info = await token.getAccountInfo(tokenAccnt)
+    return info.amount
+  } catch(err) {
+    return new BN(0)
+
+  }
 }
 
 export const getBalance = async (
