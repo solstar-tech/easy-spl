@@ -2,7 +2,6 @@ import * as web3 from '@solana/web3.js'
 import { TOKEN_PROGRAM_ID, Token } from '@solana/spl-token'
 import * as util from '../util'
 import * as associatedTokenAccount from './associated-token-account'
-import * as account from './account'
 import * as mintTx from './mint'
 import { WalletI } from '../types'
 
@@ -31,15 +30,10 @@ export const transferTokenInstructions = async (
     associatedTokenAccount.get.address(mint, to)
   ])
 
-  const exists = await account.exists(conn, toAssociated)
-  let instructions = exists 
-    ? [] 
-    : associatedTokenAccount.create.rawInstructions(mint, toAssociated, to, from)
-
   const mintDecimals = await mintTx.get.decimals(conn, mint)
   const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
-  instructions = [
-    ...instructions,
+  const instructions = [
+    ...await associatedTokenAccount.create.maybeInstructions(conn, mint, to, from),
     ...transferTokenRawInstructions(mint, fromAssociated, toAssociated, from, amountRaw, mintDecimals)
   ]
 
