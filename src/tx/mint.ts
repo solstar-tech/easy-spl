@@ -4,7 +4,6 @@ import * as TokenInstructions from './token-instructions'
 import { TOKEN_PROGRAM_ID, Token, MintInfo } from '@solana/spl-token'
 import * as util from '../util'
 import { WalletI } from '../types'
-import * as account from './account'
 import * as associatedTokenAccount from './associated-token-account'
 
 export const createMintInstructions = async (
@@ -64,7 +63,6 @@ export const createMintSend = async (
   return mint.publicKey
 }
 
-
 export const mintToRawInstructions = (
   mint: web3.PublicKey,
   dest: web3.PublicKey,
@@ -81,6 +79,19 @@ export const mintToRawInstructions = (
   )]
 }
 
+export const mintToInstructions = async (
+  conn: web3.Connection,
+  mint: web3.PublicKey,
+  dest: web3.PublicKey,
+  authority: web3.PublicKey,
+  amount: number
+): Promise<web3.TransactionInstruction[]> => {
+  const associated = await associatedTokenAccount.get.address(mint, dest)
+  const mintDecimals = await getMintDecimals(conn, mint)
+  const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
+  return mintToRawInstructions(mint, associated, authority, amountRaw)
+}
+
 export const mintToTx = async (
   conn: web3.Connection,
   mint: web3.PublicKey,
@@ -88,18 +99,9 @@ export const mintToTx = async (
   authority: web3.PublicKey,
   amount: number
 ): Promise<web3.Transaction> => {
-  const associated = await associatedTokenAccount.get.address(mint, dest)
-
-  const exists = await account.exists(conn, associated)
-  let instructions = exists 
-    ? []
-    : associatedTokenAccount.create.rawInstructions(mint, associated, dest, authority)
-
-  const mintDecimals = await getMintDecimals(conn, mint)
-  const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
-  instructions = [
-    ...instructions,
-    ...mintToRawInstructions(mint, associated, authority, amountRaw)
+  const instructions = [
+    ...await associatedTokenAccount.create.maybeInstructions(conn, mint, dest, authority),
+    ...await mintToInstructions(conn, mint, dest, authority, amount)
   ]
 
   return util.wrapInstructions(conn, instructions, authority)
@@ -204,6 +206,7 @@ export const get = {
 
 export const mintTo = {
   rawInstructions: mintToRawInstructions,
+  iInstructions: mintToInstructions,
   tx: mintToTx,
   signed: mintToSigned,
   send: mintToSend

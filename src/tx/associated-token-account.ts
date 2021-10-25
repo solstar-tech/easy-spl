@@ -22,33 +22,41 @@ export const createAssociatedTokenAccountRawInstructions = (
 
 export const createAssociatedTokenAccountInstructions = async (
   mint: web3.PublicKey,
-  address: web3.PublicKey | null,
   owner: web3.PublicKey,
   sender: web3.PublicKey,
 ): Promise<web3.TransactionInstruction[]> => {
-  const toMake = address || await getAssociatedTokenAddress(mint, owner)
+  const toMake = await getAssociatedTokenAddress(mint, owner)
   return createAssociatedTokenAccountRawInstructions(mint, toMake, owner, sender)
+}
+
+export const maybeCreateAssociatedTokenAccountInstructions = async (
+  conn: web3.Connection,
+  mint: web3.PublicKey,
+  owner: web3.PublicKey,
+  sender: web3.PublicKey,
+): Promise<web3.TransactionInstruction[]> => {
+  const doesExist = await exists(conn, mint, owner)
+  if (doesExist) return []
+  return createAssociatedTokenAccountInstructions(mint, owner, sender)
 }
 
 export const createAssociatedTokenAccountTx = async (
   conn: web3.Connection,
   mint: web3.PublicKey,
-  address: web3.PublicKey | null,
   owner: web3.PublicKey,
   sender: web3.PublicKey,
 ): Promise<web3.Transaction> => {
-  const instructions = await createAssociatedTokenAccountInstructions(mint, address, owner, sender)
+  const instructions = await createAssociatedTokenAccountInstructions(mint, owner, sender)
   return util.wrapInstructions(conn, instructions, sender)
 }
 
 export const createAssociatedTokenAccountSigned = async (
   conn: web3.Connection,
   mint: web3.PublicKey,
-  address: web3.PublicKey | null,
   owner: web3.PublicKey,
   wallet: WalletI,
 ): Promise<web3.Transaction> => {
-  const tx = await createAssociatedTokenAccountTx(conn, mint, address, owner, wallet.publicKey)
+  const tx = await createAssociatedTokenAccountTx(conn, mint, owner, wallet.publicKey)
   return await wallet.signTransaction(tx)
 }
 
@@ -62,7 +70,7 @@ export const createAssociatedTokenAccountSend = async (
   if (await account.exists(conn, address)) {
     return address
   }
-  const tx = await createAssociatedTokenAccountSigned(conn, mint, address, owner, wallet)
+  const tx = await createAssociatedTokenAccountSigned(conn, mint, owner, wallet)
   await util.sendAndConfirm(conn, tx)
   return address
 }
@@ -83,6 +91,7 @@ export const exists = async(
   return account.exists(conn, address)
 }
 
+
 export const get = {
   address: getAssociatedTokenAddress,
 }
@@ -90,6 +99,7 @@ export const get = {
 export const create = {
   rawInstructions: createAssociatedTokenAccountRawInstructions,
   instructions: createAssociatedTokenAccountInstructions,
+  maybeInstructions: maybeCreateAssociatedTokenAccountInstructions,
   tx: createAssociatedTokenAccountTx,
   signed: createAssociatedTokenAccountSigned,
   send: createAssociatedTokenAccountSend
