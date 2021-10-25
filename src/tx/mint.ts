@@ -89,7 +89,11 @@ export const mintToInstructions = async (
   const associated = await associatedTokenAccount.get.address(mint, dest)
   const mintDecimals = await getMintDecimals(conn, mint)
   const amountRaw = util.makeInteger(amount, mintDecimals).toNumber()
-  return mintToRawInstructions(mint, associated, authority, amountRaw)
+  const instructions = [
+    ...await associatedTokenAccount.create.maybeInstructions(conn, mint, dest, authority),
+    ...mintToRawInstructions(mint, associated, authority, amountRaw)
+  ]
+  return instructions
 }
 
 export const mintToTx = async (
@@ -99,11 +103,7 @@ export const mintToTx = async (
   authority: web3.PublicKey,
   amount: number
 ): Promise<web3.Transaction> => {
-  const instructions = [
-    ...await associatedTokenAccount.create.maybeInstructions(conn, mint, dest, authority),
-    ...await mintToInstructions(conn, mint, dest, authority, amount)
-  ]
-
+  const instructions = await mintToInstructions(conn, mint, dest, authority, amount)
   return util.wrapInstructions(conn, instructions, authority)
 }
 
