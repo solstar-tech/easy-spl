@@ -206,7 +206,7 @@ export const get = {
 
 export const mintTo = {
   rawInstructions: mintToRawInstructions,
-  iInstructions: mintToInstructions,
+  instructions: mintToInstructions,
   tx: mintToTx,
   signed: mintToSigned,
   send: mintToSend
