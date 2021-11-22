@@ -5,4 +5,3 @@ export interface WalletI {
   signTransaction: (tx: web3.Transaction) => Promise<web3.Transaction>
   signAllTransactions: (txs: web3.Transaction[]) => Promise<web3.Transaction[]>
 }
-
