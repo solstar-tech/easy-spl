@@ -26,6 +26,6 @@ export const makeDecimal = (bn: BN, decimals: number): number => {
 }
 
 export const makeInteger = (num: number, decimals: number): BN => {
-  const bn = new BN(num)
-  return bn.mul(new BN(Math.pow(10, decimals)))
+  const mul = Math.pow(10, decimals)
+  return new BN(num * mul)
 }
