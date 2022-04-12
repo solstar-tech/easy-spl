@@ -22,7 +22,8 @@ export const sendAndConfirm = async (conn: web3.Connection, tx: web3.Transaction
 }
 
 export const makeDecimal = (bn: BN, decimals: number): number => {
-  return bn.toNumber() / Math.pow(10, decimals)
+  const parsedNumber = Number.parseFloat(bn.toString())
+  return parsedNumber / Math.pow(10, decimals)
 }
 
 export const makeInteger = (num: number, decimals: number): BN => {
